@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="base :: common_header(~{::title})">
+    <title>Formulario de proveedor</title>
+</head>
+<body>
+<div id="wrapper">
+
+    <nav th:replace="base :: common_navigation_menu"></nav>
+
+    <div id="page-wrapper">
+        <div class="container-fluid">
+
+            <div class="row">
+                <div class="col-lg-12">
+                    <h1 class="page-header"><span th:text="${propositoFormulario}"></span></h1>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-lg-8">
+                    <form role="form">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                Información del proveedor
+                            </div>
+
+                            <div class="panel-body">
+                                <div class="row">
+                                    <div class="col-lg-8">
+                                        <fieldset>
+                                            <div class="form-group">
+                                                <label for="FormProveedorNombre">Nombre</label>
+                                                <input class="form-control"
+                                                       name="FormProveedorNombre"
+                                                       id="FormProveedorNombre"
+                                                       type="text"
+                                                       th:value="${proveedor.nombre}">
+                                            </div>
+
+                                            <div class="form-group">
+                                                <label for="FormProveedorDireccion">Dirección</label>
+                                                <input class="form-control"
+                                                       name="FormProveedorDireccion"
+                                                       id="FormProveedorDireccion"
+                                                       type="text"
+                                                       th:value="${proveedor.direccion}">
+                                            </div>
+
+                                            <div class="form-group">
+                                                <label for="FormProveedorTelefono">Teléfono</label>
+                                                <input class="form-control"
+                                                       name="FormProveedorTelefono"
+                                                       id="FormProveedorTelefono"
+                                                       type="text"
+                                                       th:value="${proveedor.telefono}">
+                                            </div>
+
+                                            <hr>
+
+                                            <h4>Productos</h4>
+
+                                            <div id="productosContainer">
+                                                <div class="producto-item panel panel-default"
+                                                     th:each="productoItem, iterStat : ${productos}">
+                                                    <div class="panel-body">
+
+                                                        <input name="FormProductoId"
+                                                               type="hidden"
+                                                               th:value="${productoItem.idProducto != null ? productoItem.idProducto : 0}">
+
+                                                        <div class="form-group">
+                                                            <label>Nombre del producto</label>
+                                                            <input class="form-control"
+                                                                   name="FormProductoNombre"
+                                                                   type="text"
+                                                                   th:value="${productoItem.nombre}">
+                                                        </div>
+
+                                                        <div class="form-group">
+                                                            <label>Costo</label>
+                                                            <input class="form-control"
+                                                                   name="FormProductoCosto"
+                                                                   type="text"
+                                                                   th:value="${productoItem.costo}">
+                                                        </div>
+
+                                                        <button type="button"
+                                                                class="btn btn-danger btn-sm eliminarProducto">
+                                                            Eliminar producto
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <button type="button"
+                                                    id="agregarProducto"
+                                                    class="btn btn-success">
+                                                Agregar producto
+                                            </button>
+
+                                            <div class="form-group">
+                                                <input name="FormProveedorId"
+                                                       id="FormProveedorId"
+                                                       type="hidden"
+                                                       th:value="${proveedor.idProveedor}">
+                                            </div>
+
+                                        </fieldset>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-success alert-dismissible col-lg-8" id="successModalMessage">
+                            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                            <span id="successMessage"></span>
+                        </div>
+
+                        <div class="alert alert-danger alert-dismissible col-lg-8" id="errorModalMessage">
+                            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                            <span id="errorMessage"></span>
+                        </div>
+
+                        <button type="button"
+                                name="guardarProveedor"
+                                id="guardarProveedor"
+                                class="btn btn-primary btn-lg btn-block">
+                            Guardar
+                        </button>
+
+                        <br>&nbsp;
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<footer th:replace="base :: common_footer(~{::script})">
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $("#errorModalMessage").hide();
+            $("#successModalMessage").hide();
+
+            $("#agregarProducto").click(function() {
+                var nuevoProducto =
+                    '<div class="producto-item panel panel-default">' +
+                        '<div class="panel-body">' +
+                            '<input name="FormProductoId" type="hidden" value="0">' +
+
+                            '<div class="form-group">' +
+                                '<label>Nombre del producto</label>' +
+                                '<input class="form-control" name="FormProductoNombre" type="text" value="">' +
+                            '</div>' +
+
+                            '<div class="form-group">' +
+                                '<label>Costo</label>' +
+                                '<input class="form-control" name="FormProductoCosto" type="text" value="0">' +
+                            '</div>' +
+
+                            '<button type="button" class="btn btn-danger btn-sm eliminarProducto">Eliminar producto</button>' +
+                        '</div>' +
+                    '</div>';
+
+                $("#productosContainer").append(nuevoProducto);
+            });
+
+            $(document).on("click", ".eliminarProducto", function() {
+                if ($(".producto-item").length > 1) {
+                    $(this).closest(".producto-item").remove();
+                } else {
+                    $("#errorMessage").text("Debe existir al menos un producto.");
+                    $("#errorModalMessage").show();
+                }
+            });
+
+            $('#guardarProveedor').click(function() {
+                $("#errorModalMessage").hide();
+                $("#successModalMessage").hide();
+
+                var data = {
+                    "FormProveedorId": $('input[name=FormProveedorId]').val(),
+                    "FormProveedorNombre": $('input[name=FormProveedorNombre]').val(),
+                    "FormProveedorDireccion": $('input[name=FormProveedorDireccion]').val(),
+                    "FormProveedorTelefono": $('input[name=FormProveedorTelefono]').val()
+                };
+
+                $('input[name=FormProductoId]').each(function() {
+                    if (!data["FormProductoId"]) {
+                        data["FormProductoId"] = [];
+                    }
+                    data["FormProductoId"].push($(this).val());
+                });
+
+                $('input[name=FormProductoNombre]').each(function() {
+                    if (!data["FormProductoNombre"]) {
+                        data["FormProductoNombre"] = [];
+                    }
+                    data["FormProductoNombre"].push($(this).val());
+                });
+
+                $('input[name=FormProductoCosto]').each(function() {
+                    if (!data["FormProductoCosto"]) {
+                        data["FormProductoCosto"] = [];
+                    }
+                    data["FormProductoCosto"].push($(this).val());
+                });
+
+                $.ajax({
+                    type: "POST",
+                    traditional: true,
+                    data: data,
+                    url: "/guardar-proveedor",
+                    success: function() {
+                        $("#successMessage").text("Proveedor guardado correctamente.");
+                        $("#successModalMessage").show();
+                    },
+                    error: function(XMLHttpRequest) {
+                        if (XMLHttpRequest.responseJSON != null && XMLHttpRequest.responseJSON.messages != null) {
+                            $("#errorMessage").text("ERROR en los siguientes campos: " + XMLHttpRequest.responseJSON.messages.join(", "));
+                        } else {
+                            $("#errorMessage").text("Ocurrió un error al GUARDAR el proveedor, consulte al Administrador.");
+                        }
+
+                        $("#errorModalMessage").show();
+                    }
+                });
+            });
+        });
+    </script>
+</footer>
+</body>
+</html>
